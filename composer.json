@@ -1,9 +1,9 @@
 {
     "name": "bcrowe/cakephp-api-pagination",
-    "description": "CakePHP 4 plugin that injects pagination information into API responses.",
+    "description": "CakePHP 5 plugin that injects pagination information into API responses.",
     "type": "cakephp-plugin",
     "keywords": [
-        "cakephp", "api", "pagination", "cakephp3", "cakephp4"
+        "cakephp", "api", "pagination", "cakephp3", "cakephp4", "cakephp5"
     ],
     "homepage": "https://github.com/bcrowe/cakephp-api-pagination",
     "license": "MIT",
@@ -16,13 +16,13 @@
         }
     ],
     "require": {
-        "php": ">=7.2",
-        "cakephp/cakephp": "^4.2"
+        "php": ">=8.1",
+        "cakephp/cakephp": "^5.0"
     },
     "require-dev": {
-        "phpunit/phpunit" : "^8.5.23",
+        "phpunit/phpunit" : "^10.5.5",
         "scrutinizer/ocular": "1.7",
-        "cakephp/cakephp-codesniffer": "^4.7"
+        "cakephp/cakephp-codesniffer": "^5.0"
     },
     "autoload": {
         "psr-4": {
