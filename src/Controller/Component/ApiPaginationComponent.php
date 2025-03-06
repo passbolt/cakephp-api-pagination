@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace BryanCrowe\ApiPagination\Controller\Component;
 
 use Cake\Controller\Component;
+use Cake\Datasource\Paging\PaginatedInterface;
 use Cake\Event\Event;
 
 /**
@@ -23,6 +24,13 @@ class ApiPaginationComponent extends Component
         'aliases' => [],
         'visible' => [],
     ];
+
+    /**
+     * Paging params of paginated result set (if any).
+     *
+     * @var array
+     */
+    protected array $pagingParams = [];
 
     /**
      * Holds the paging information array from the request.
@@ -46,8 +54,8 @@ class ApiPaginationComponent extends Component
 
         $subject = $event->getSubject();
         $modelName = ucfirst($this->getConfig('model', $subject->getName()));
-        if (isset($this->getController()->getRequest()->getAttribute('paging')[$modelName])) {
-            $this->pagingInfo = $this->getController()->getRequest()->getAttribute('paging')[$modelName];
+        if (isset($this->pagingParams[$modelName])) {
+            $this->pagingInfo = $this->pagingParams[$modelName];
         }
 
         $config = $this->getConfig();
@@ -107,13 +115,20 @@ class ApiPaginationComponent extends Component
      */
     protected function isPaginatedApiRequest(): bool
     {
-        if (
-            $this->getController()->getRequest()->getAttribute('paging')
-            && $this->getController()->getRequest()->is(['json', 'xml'])
-        ) {
-            return true;
+        if (!$this->getController()->getRequest()->is(['json', 'xml'])) {
+            return false;
         }
 
-        return false;
+        // Since cake 5, paging params are no longer part of the request attribute.
+        // Hence, we check for all the view vars and if paginated interface found then we pick the first one and use it.
+        // @see https://github.com/cakephp/cakephp/pull/16317#issuecomment-1045873277
+        foreach ($this->getController()->viewBuilder()->getVars() as $value) {
+            if ($value instanceof PaginatedInterface) {
+                $this->pagingParams[$value->pagingParam('alias')] = $value->pagingParams();
+                break;
+            }
+        }
+
+        return !empty($this->pagingParams);
     }
 }

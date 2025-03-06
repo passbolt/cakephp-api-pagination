@@ -7,8 +7,4 @@ use Cake\Controller\Controller;
 
 class ArticlesController extends Controller
 {
-    public function initialize(): void
-    {
-        parent::initialize();
-    }
 }

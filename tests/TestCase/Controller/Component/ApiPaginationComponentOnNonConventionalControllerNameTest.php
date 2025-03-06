@@ -1,12 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace BryanCrowe\ApiPagination\Test;
+namespace BryanCrowe\ApiPagination\Test\TestCase\Controller\Component;
 
 use BryanCrowe\ApiPagination\Controller\Component\ApiPaginationComponent;
 use BryanCrowe\ApiPagination\TestApp\Controller\ArticlesIndexController;
+use Cake\Controller\Controller;
 use Cake\Event\Event;
+use Cake\Http\Response;
 use Cake\Http\ServerRequest as Request;
+use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
@@ -17,7 +20,15 @@ use Cake\TestSuite\TestCase;
  */
 class ApiPaginationComponentOnNonConventionalControllerNameTest extends TestCase
 {
-    public $fixtures = ['plugin.BryanCrowe/ApiPagination.Articles'];
+    public array $fixtures = ['plugin.BryanCrowe/ApiPagination.Articles'];
+
+    protected ?Request $request = null;
+
+    protected ?Response $response = null;
+
+    protected ?Controller $controller = null;
+
+    protected ?Table $Articles = null;
 
     /**
      * setUp method
@@ -28,7 +39,8 @@ class ApiPaginationComponentOnNonConventionalControllerNameTest extends TestCase
     {
         $this->request = new Request(['url' => '/articles']);
         $this->response = $this->createMock('Cake\Http\Response');
-        $this->controller = new ArticlesIndexController($this->request, $this->response);
+        $this->controller = new ArticlesIndexController($this->request);
+        $this->controller = $this->controller->setResponse($this->response);
         $this->Articles = TableRegistry::getTableLocator()->get('BryanCrowe/ApiPagination.Articles', ['table' => 'bryancrowe_articles']);
         parent::setUp();
     }
@@ -71,12 +83,12 @@ class ApiPaginationComponentOnNonConventionalControllerNameTest extends TestCase
      *
      * @return array[]
      */
-    public function dataForTestVariousModelValueOnNonConventionalController(): array
+    public static function dataForTestVariousModelValueOnNonConventionalController(): array
     {
         return [
             [[], []],
-            [['model' => 'Articles'], $this->getDefaultPagination()],
-            [['model' => 'articles'], $this->getDefaultPagination()],
+            [['model' => 'Articles'], self::getDefaultPagination()],
+            [['model' => 'articles'], self::getDefaultPagination()],
             [['model' => 'NonExistingModel'], []],
         ];
     }
@@ -86,27 +98,27 @@ class ApiPaginationComponentOnNonConventionalControllerNameTest extends TestCase
      *
      * @return array
      */
-    private function getDefaultPagination(): array
+    private static function getDefaultPagination(): array
     {
         return [
-            'count' => 23,
-            'current' => 20,
-            'perPage' => 20,
-            'page' => 1,
-            'requestedPage' => 1,
-            'pageCount' => 2,
-            'start' => 1,
-            'end' => 20,
-            'prevPage' => false,
-            'nextPage' => true,
             'sort' => null,
             'direction' => null,
             'sortDefault' => false,
             'directionDefault' => false,
             'completeSort' => [],
-            'limit' => null,
+            'perPage' => 20,
+            'requestedPage' => 1,
+            'alias' => 'Articles',
             'scope' => null,
-            'finder' => 'all',
+            'limit' => null,
+            'count' => 20,
+            'totalCount' => 23,
+            'pageCount' => 2,
+            'currentPage' => 1,
+            'start' => 1,
+            'end' => 20,
+            'hasPrevPage' => false,
+            'hasNextPage' => true,
         ];
     }
 }
