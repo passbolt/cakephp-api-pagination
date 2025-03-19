@@ -119,6 +119,13 @@ class ApiPaginationComponent extends Component
             return false;
         }
 
+        // Cake 4 way for the people who want to keep embracing paging attribute pattern
+        if ($this->getController()->getRequest()->getAttribute('paging')) {
+            $this->pagingParams = $this->getController()->getRequest()->getAttribute('paging');
+
+            return !empty($this->pagingParams);
+        }
+
         // Since cake 5, paging params are no longer part of the request attribute.
         // Hence, we check for all the view vars and if paginated interface found then we pick the first one and use it.
         // @see https://github.com/cakephp/cakephp/pull/16317#issuecomment-1045873277
