@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace BryanCrowe\ApiPagination\Controller\Component;
 
 use Cake\Controller\Component;
+use Cake\Datasource\Paging\PaginatedInterface;
 use Cake\Event\Event;
 
 /**
@@ -18,18 +19,25 @@ class ApiPaginationComponent extends Component
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'key' => 'pagination',
         'aliases' => [],
         'visible' => [],
     ];
 
     /**
+     * Paging params of paginated result set (if any).
+     *
+     * @var array
+     */
+    protected array $pagingParams = [];
+
+    /**
      * Holds the paging information array from the request.
      *
      * @var array
      */
-    protected $pagingInfo = [];
+    protected array $pagingInfo = [];
 
     /**
      * Injects the pagination info into the response if the current request is a
@@ -38,7 +46,7 @@ class ApiPaginationComponent extends Component
      * @param  \Cake\Event\Event $event The Controller.beforeRender event.
      * @return void
      */
-    public function beforeRender(Event $event)
+    public function beforeRender(Event $event): void
     {
         if (!$this->isPaginatedApiRequest()) {
             return;
@@ -46,8 +54,8 @@ class ApiPaginationComponent extends Component
 
         $subject = $event->getSubject();
         $modelName = ucfirst($this->getConfig('model', $subject->getName()));
-        if (isset($this->getController()->getRequest()->getAttribute('paging')[$modelName])) {
-            $this->pagingInfo = $this->getController()->getRequest()->getAttribute('paging')[$modelName];
+        if (isset($this->pagingParams[$modelName])) {
+            $this->pagingInfo = $this->pagingParams[$modelName];
         }
 
         $config = $this->getConfig();
@@ -75,7 +83,7 @@ class ApiPaginationComponent extends Component
      *
      * @return void
      */
-    protected function setAliases()
+    protected function setAliases(): void
     {
         foreach ($this->getConfig('aliases') as $key => $value) {
             $this->pagingInfo[$value] = $this->pagingInfo[$key];
@@ -89,7 +97,7 @@ class ApiPaginationComponent extends Component
      *
      * @return void
      */
-    protected function setVisibility()
+    protected function setVisibility(): void
     {
         $visible = $this->getConfig('visible');
         foreach ($this->pagingInfo as $key => $value) {
@@ -105,15 +113,29 @@ class ApiPaginationComponent extends Component
      *
      * @return bool True if JSON or XML with paging, otherwise false.
      */
-    protected function isPaginatedApiRequest()
+    protected function isPaginatedApiRequest(): bool
     {
-        if (
-            $this->getController()->getRequest()->getAttribute('paging')
-            && $this->getController()->getRequest()->is(['json', 'xml'])
-        ) {
-            return true;
+        if (!$this->getController()->getRequest()->is(['json', 'xml'])) {
+            return false;
         }
 
-        return false;
+        // Cake 4 way for the people who want to keep embracing paging attribute pattern
+        if ($this->getController()->getRequest()->getAttribute('paging')) {
+            $this->pagingParams = $this->getController()->getRequest()->getAttribute('paging');
+
+            return !empty($this->pagingParams);
+        }
+
+        // Since cake 5, paging params are no longer part of the request attribute.
+        // Hence, we check for all the view vars and if paginated interface found then we pick the first one and use it.
+        // @see https://github.com/cakephp/cakephp/pull/16317#issuecomment-1045873277
+        foreach ($this->getController()->viewBuilder()->getVars() as $value) {
+            if ($value instanceof PaginatedInterface) {
+                $this->pagingParams[$value->pagingParam('alias')] = $value->pagingParams();
+                break;
+            }
+        }
+
+        return !empty($this->pagingParams);
     }
 }

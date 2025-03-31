@@ -5,9 +5,9 @@ use Cake\TestSuite\Fixture\TestFixture;
 
 class ArticlesFixture extends TestFixture
 {
-    public $table = 'bryancrowe_articles';
+    public string $table = 'bryancrowe_articles';
 
-    public $records = [
+    public array $records = [
         ['title' => 'Post #1', 'body' => 'This is the article body.'],
         ['title' => 'Post #2', 'body' => 'This is the article body.'],
         ['title' => 'Post #3', 'body' => 'This is the article body.'],
