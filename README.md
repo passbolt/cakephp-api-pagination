@@ -2,13 +2,15 @@
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
-[![Build Status][ico-travis]][link-travis]
+[![Build Status][ico-github]][link-github]
 [![Coverage Status][ico-scrutinizer]][link-scrutinizer]
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-This is a simple component for CakePHP 4 which injects pagination information
+This is a simple component for CakePHP 4.2+ which injects pagination information
 from CakePHP's Paginator into serialized JsonView and XmlView responses.
+
+See `1.x` and `2.x` releases and branches of this plugin for support of previous versions of CakePHP before `4.2`.
 
 ## Install
 
@@ -18,10 +20,19 @@ Via Composer
 $ composer require bcrowe/cakephp-api-pagination
 ```
 
-Load the plugin in your application's `bootstrap.php` file:
+Load the plugin by adding `$this->addPlugin('BryanCrowe/ApiPagination');` to the `bootsrap` method in your project’s `src/Application.php`:
 
 ``` php
-Plugin::load('BryanCrowe/ApiPagination');
+public function bootstrap(): void
+{
+    parent::bootstrap();
+    
+    // ... bootstrap code ...
+
+    // load more plugins here
+    
+    $this->addPlugin('BryanCrowe/ApiPagination');
+}
 ```
 
 ## Usage
@@ -40,10 +51,9 @@ Then, go ahead and set your paginated view variable like so:
 
 ``` php
 $this->set('articles', $this->paginate($this->Articles));
-$this->set('_serialize', ['articles']);
+$this->viewBuilder()->setOption('serialize', ['articles']);
 ```
-
-**Note:** It is important that your `_serialize` variable is an array, e.g.
+**Note:** It is important that your `serialize` option is an array, e.g.
 `['articles']`, so that your pagination information can be set under its own
 pagination key.
 
@@ -153,16 +163,16 @@ information.
 
 [ico-version]: https://img.shields.io/packagist/v/bcrowe/cakephp-api-pagination.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/bcrowe/cakephp-api-pagination/master.svg?style=flat-square
+[ico-github]: https://github.com/bcrowe/cakephp-api-pagination/workflows/CI/badge.svg
 [ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/bcrowe/cakephp-api-pagination.svg?style=flat-square
 [ico-code-quality]: https://img.shields.io/scrutinizer/g/bcrowe/cakephp-api-pagination.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/bcrowe/cakephp-api-pagination.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/bcrowe/cakephp-api-pagination
-[link-travis]: https://travis-ci.org/bcrowe/cakephp-api-pagination
+[link-github]: https://github.com/bcrowe/cakephp-api-pagination/actions
 [link-scrutinizer]: https://scrutinizer-ci.com/g/bcrowe/cakephp-api-pagination/code-structure
 [link-code-quality]: https://scrutinizer-ci.com/g/bcrowe/cakephp-api-pagination
 [link-downloads]: https://packagist.org/packages/bcrowe/cakephp-api-pagination
 [link-author]: https://github.com/bcrowe
 [link-contributors]: ../../contributors
-[link-dataviews]: http://book.cakephp.org/3.0/en/views/json-and-xml-views.html#enabling-data-views-in-your-application
+[link-dataviews]: https://book.cakephp.org/4/en/views/json-and-xml-views.html#enabling-data-views-in-your-application

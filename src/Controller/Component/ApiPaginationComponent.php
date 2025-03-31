@@ -46,7 +46,10 @@ class ApiPaginationComponent extends Component
 
         $subject = $event->getSubject();
         $modelName = ucfirst($this->getConfig('model', $subject->getName()));
-        $this->pagingInfo = $this->getController()->getRequest()->getAttribute('paging')[$modelName];
+        if (isset($this->getController()->getRequest()->getAttribute('paging')[$modelName])) {
+            $this->pagingInfo = $this->getController()->getRequest()->getAttribute('paging')[$modelName];
+        }
+
         $config = $this->getConfig();
 
         if (!empty($config['aliases'])) {
@@ -59,8 +62,11 @@ class ApiPaginationComponent extends Component
 
         $subject->set($config['key'], $this->pagingInfo);
         $data = $subject->viewBuilder()->getOption('serialize') ?? [];
-        $data[] = $config['key'];
-        $subject->viewBuilder()->setOption('serialize', $data);
+
+        if (is_array($data)) {
+            $data[] = $config['key'];
+            $subject->viewBuilder()->setOption('serialize', $data);
+        }
     }
 
     /**
